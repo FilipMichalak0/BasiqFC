@@ -1,0 +1,68 @@
+#ifndef BME280_DRIVER
+#define BME280_DRIVER
+
+#include<stdio.h>
+#include"pico/stdlib.h"
+#include"hardware/i2c.h"
+
+// ---------------------------------------
+// I2C setup
+// ---------------------------------------
+
+#define address 0x76
+// ---------------------------------------
+// BME 280 structs 
+// ---------------------------------------
+typedef struct 
+{
+    i2c_inst_t*  I2cBME280Port; // taking this from raspberrys pi pico hardware/i2c library look in datasheet page 92
+    uint8_t  BME280SclPin; 
+    uint8_t  BME280SdaPin;   
+    uint32_t PPa;
+    uint32_t P0Pa;
+    uint32_t adcP;
+    uint32_t adcT;
+    uint32_t tempPa;
+    uint32_t hPa;
+    float altitudeM;
+    int32_t altitudeCM; 
+}bme280;
+typedef struct 
+{
+    // using snake case instead of Pascal like in any other function because wants to stay same as Bosch's datasheet 
+    // for temperature calibration 
+    uint16_t dig_T1;
+    int16_t  dig_T2;
+    int16_t  dig_T3;
+    // for pressure calibration 
+    uint16_t dig_P1;
+    int16_t  dig_P2;    
+    int16_t  dig_P3;
+    int16_t  dig_P4;
+    int16_t  dig_P5;
+    int16_t  dig_P6;
+    int16_t  dig_P7;
+    int16_t  dig_P8;
+    int16_t  dig_P9;
+}bme280_calib_t;
+
+
+// ---------------------------------------
+// Prototypes
+// ---------------------------------------
+
+uint8_t BME280_i2cScanner (bme280* BME280);
+void BME280_writeSingleData(uint8_t reg, uint8_t value, bme280* BME280);
+void BME280_Init(bme280* BME280);
+void BME280_I2cInnit(bme280* BME280);
+void BME280_readCalibrationData(bme280* BME280);
+int32_t BME280_compensate_T_int32(int32_t adc_T);
+uint32_t BME280_compensate_P_int64(int32_t adc_P);
+uint32_t BME280_CalculateReference (uint8_t NRef, bme280* BME280);
+void BME280_ReadData(bme280* BME280);
+void BME280_CalculateAltitude(bme280* BME280);
+float BME280_calculateAltitudeTaylor(float P_Pa, float P0_Pa); 
+
+
+
+#endif
