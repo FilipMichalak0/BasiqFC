@@ -8,17 +8,12 @@ This protocol uses LSB and little endian structure
 */
 #include "crsf.h"
 
-void CRSF_UartInit(crsf_data* CRSF) 
-{
-    uart_init(CRSF->UartCRSFPort,CRSF_BAUD_RATE);
-    gpio_set_function(CRSF->UartTxPin,GPIO_FUNC_UART);
-    gpio_set_function(CRSF->UartRxPin,GPIO_FUNC_UART);
-    uart_set_baudrate(CRSF->UartCRSFPort, CRSF_BAUD_RATE);
-    uart_set_format(CRSF->UartCRSFPort, 8, 1, UART_PARITY_NONE);
-}
-
+// ---------------------------------------
+// Public API
+// ---------------------------------------
 void CRSF_Init(crsf_data* CRSF) // CRSF basic values 
 {
+    CRSF_UartInit(CRSF);
     CRSF_CRC8LutInit(CRSF); // creating look up table 
     CRSF->state = state_wait; // initial state of state machine 
     CRSF->byteID = 0;
@@ -71,6 +66,7 @@ void CRSF_StateMachine(crsf_data* CRSF) // state machine that allows for correct
                 }
                 CRSF->state = state_wait;
                 CRSF->byteID = 0;
+                CRSF_ChannelMaping(CRSF);
             }
             break;
         default:
@@ -82,14 +78,16 @@ void CRSF_StateMachine(crsf_data* CRSF) // state machine that allows for correct
     
 }
 
-void CRSF_ChannelMaping(crsf_data* CRSF) // mapping data from CRSF format to PWM 1000-2000us format
+// ---------------------------------------
+// Internal functions
+// ---------------------------------------
+void CRSF_UartInit(crsf_data* CRSF) 
 {
-    for(uint8_t i = 0; i < sizeof(CRSF->rawData) / sizeof(CRSF->rawData[0]); i++)
-    {
-       CRSF->PWMData[i] = 1500 + ((5 * (CRSF->rawData[i] - 992)) / 8); 
-       if(CRSF->PWMData[i] > 2000) CRSF->PWMData[i] = 2000; // limiting value to 2000 if above (rare but could happend)
-       if(CRSF->PWMData[i] < 1000) CRSF->PWMData[i] = 1000; // limiting value to 1000 if below (rare but could happend)
-    }
+    uart_init(CRSF->UartCRSFPort,CRSF_BAUD_RATE);
+    gpio_set_function(CRSF->UartTxPin,GPIO_FUNC_UART);
+    gpio_set_function(CRSF->UartRxPin,GPIO_FUNC_UART);
+    uart_set_baudrate(CRSF->UartCRSFPort, CRSF_BAUD_RATE);
+    uart_set_format(CRSF->UartCRSFPort, 8, 1, UART_PARITY_NONE);
 }
 
 void CRSF_UnpackPayloadData(crsf_data* CRSF) // unpacking data to corect channels 
@@ -141,4 +139,14 @@ uint8_t CRSF_CRC8Check(crsf_data* CRSF)
         // and then we can compare the two with each other to check if message is correct
     }
     return crc;
+}
+
+void CRSF_ChannelMaping(crsf_data* CRSF) // mapping data from CRSF format to PWM 1000-2000us format
+{
+    for(uint8_t i = 0; i < sizeof(CRSF->rawData) / sizeof(CRSF->rawData[0]); i++)
+    {
+       CRSF->PWMData[i] = 1500 + ((5 * (CRSF->rawData[i] - 992)) / 8); 
+       if(CRSF->PWMData[i] > 2000) CRSF->PWMData[i] = 2000; // limiting value to 2000 if above (rare but could happend)
+       if(CRSF->PWMData[i] < 1000) CRSF->PWMData[i] = 1000; // limiting value to 1000 if below (rare but could happend)
+    }
 }

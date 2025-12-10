@@ -1,5 +1,5 @@
-#ifndef MPU6500_DRIVER
-#define MPU6500_DRIVER
+#ifndef MPU6500_DRIVER_
+#define MPU6500_DRIVER_
 
 #include<stdio.h>
 #include"pico/stdlib.h"
@@ -11,6 +11,13 @@
 #define MPU6500_address 0x68
 
 // ---------------------------------------
+// const Calibration data
+// ---------------------------------------
+#define fAccelCalibX 0.009 
+#define fAccelCalibY 0.012
+#define fAccelCalibZ 0.003
+
+// ---------------------------------------
 // MPU6500 structs
 // ---------------------------------------
 typedef struct
@@ -19,23 +26,31 @@ typedef struct
     uint8_t MPU6500SclPin;
     uint8_t MPU6500SdaPin;
     uint8_t val;
-    uint8_t buff[14];
-    int16_t accelX, accelY, accelZ;
-    int16_t gyroX, gyroY, gyroZ;
-    int16_t temperature;
-    float tempOut;
-    float fAccelX, fAccelY, fAccelZ;
-    float fgyroX, fgyroY, fgyroZ;
+    uint8_t buff[14]; // buf that is used for reading data
+    int16_t accelX, accelY, accelZ; // raw accelerometer values
+    int16_t gyroX, gyroY, gyroZ; // raw gyroscope values
+    int16_t temperature; // raw temperature value
+    float tempOut; // output temperature value
+    float fAccelX, fAccelY, fAccelZ; // output accelerometer values
+    float fGyroX, fGyroY, fGyroZ; // output gyroscope values
+    float fGyroCalibX, fGyroCalibY, fGyroCalibZ; // accelerometer calibration values 
     
 }mpu6500;
 
 // ---------------------------------------
-// Prototypes
+// Public API
 // ---------------------------------------
+void MPU6500_Init(mpu6500* MPU6500);
+void MPU6500_ReadData(mpu6500* MPU6500);
+void MPU6500_CalibrateData(mpu6500* MPU6500);
+
+// ---------------------------------------
+// Internal functions
+// ---------------------------------------
+void MPU6500_I2cInnit(mpu6500* MPU6500);
 uint8_t MPU6500_I2cScanner(mpu6500* MPU6500);
 static void MPU6500_writeSingleData(uint8_t reg, uint8_t value,mpu6500* MPU6500);
-void MPU6500_Init(mpu6500* MPU6500);
-void MPU6500_I2cInnit(mpu6500* MPU6500);
-void MPU6500_ReadData(mpu6500* MPU6500);
+uint8_t MPU6500_ReadRegister(uint8_t reg, mpu6500* MPU6500);
+void MPU6500_CalibrationSamples(mpu6500* MPU6500);
 
-#endif
+#endif // MPU6500_DRIVER_

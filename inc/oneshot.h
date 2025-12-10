@@ -1,5 +1,5 @@
-#ifndef ONESHOT_CONTROL
-#define ONESHOT_CONTROL
+#ifndef ONESHOT_CONTROL_
+#define ONESHOT_CONTROL_
 
 #include<stdio.h>
 #include"pico/stdlib.h"
@@ -29,9 +29,9 @@ typedef struct
 }oneshot;
 
 // ---------------------------------------
-// Function prototypes
+// Public API
 // ---------------------------------------
-void initMotors(oneshot* ONESHOT);
-void writeMotors(oneshot* ONESHOT);
+void ONESHOT_initMotors(oneshot* Oneshot);
+void ONESHOT_writeMotors(oneshot* Oneshot);
 
-#endif 
+#endif // ONESHOT_CONTROL_

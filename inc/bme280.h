@@ -1,5 +1,5 @@
-#ifndef BME280_DRIVER
-#define BME280_DRIVER
+#ifndef BME280_DRIVER_
+#define BME280_DRIVER_
 
 #include<stdio.h>
 #include"pico/stdlib.h"
@@ -8,8 +8,8 @@
 // ---------------------------------------
 // I2C setup
 // ---------------------------------------
-
 #define address 0x76
+
 // ---------------------------------------
 // BME 280 structs 
 // ---------------------------------------
@@ -27,6 +27,7 @@ typedef struct
     float altitudeM;
     int32_t altitudeCM; 
 }bme280;
+
 typedef struct 
 {
     // using snake case instead of Pascal like in any other function because wants to stay same as Bosch's datasheet 
@@ -46,23 +47,26 @@ typedef struct
     int16_t  dig_P9;
 }bme280_calib_t;
 
+// ---------------------------------------
+// Public API
+// ---------------------------------------
+void BME280_Init(bme280* BME280);
+void BME280_ReadData(bme280* BME280);
 
 // ---------------------------------------
-// Prototypes
+// Internal functions
 // ---------------------------------------
-
+void BME280_I2cInnit(bme280* BME280);
 uint8_t BME280_i2cScanner (bme280* BME280);
 void BME280_writeSingleData(uint8_t reg, uint8_t value, bme280* BME280);
-void BME280_Init(bme280* BME280);
-void BME280_I2cInnit(bme280* BME280);
 void BME280_readCalibrationData(bme280* BME280);
+void BME280_CalculateReference (uint8_t NRef, bme280* BME280); 
 int32_t BME280_compensate_T_int32(int32_t adc_T);
 uint32_t BME280_compensate_P_int64(int32_t adc_P);
-uint32_t BME280_CalculateReference (uint8_t NRef, bme280* BME280);
-void BME280_ReadData(bme280* BME280);
-void BME280_CalculateAltitude(bme280* BME280);
-float BME280_calculateAltitudeTaylor(float P_Pa, float P0_Pa); 
+
+void BME280_CalculateAltitude(bme280* BME280); // to do wyrzucenia do innego bloku aby obliczać wysokość w imu.c
+float BME280_calculateAltitudeTaylor(float P_Pa, float P0_Pa); // i to raz z tamtą funkcją 
 
 
 
-#endif
+#endif // BME280_DRIVER_

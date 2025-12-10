@@ -1,5 +1,6 @@
-#ifndef CRSF_PROTOCOL
-#define CRSF_PROTOCOL
+#ifndef CRSF_PROTOCOL_
+#define CRSF_PROTOCOL_
+
 #include<stdio.h>
 #include<pico/stdlib.h>
 
@@ -21,7 +22,7 @@ typedef enum
 	state_wait,
 	state_check_lenght,
 	state_read_payload
-}state;
+}crsf_state;
 // ---------------------------------------
 // CRSF Struct
 // ---------------------------------------
@@ -35,7 +36,7 @@ typedef struct
 	uint16_t PWMData[16]; // data for PWM signals to motors
 	uint8_t frame[26]; // max frame size 
 	uint8_t lut[256]; // look-up table for crc8 calculations 
-	state state; 
+	crsf_state state; 
 	uint8_t byteID; // current id of byte in packet
 	uint8_t packetLen; // lenght of packet that is recived 
 }crsf_data;
@@ -43,17 +44,18 @@ typedef struct
 
 
 // ---------------------------------------
-// Prototypes
+// Public API
 // ---------------------------------------
-
-void CRSF_UartInit(crsf_data* CRSF);
 void CRSF_Init(crsf_data* CRSF);
 void CRSF_StateMachine(crsf_data* CRSF);
-void CRSF_ChannelMaping(crsf_data* CRSF);
+
+// ---------------------------------------
+// Internal functions
+// ---------------------------------------
+void CRSF_UartInit(crsf_data* CRSF);
 void CRSF_UnpackPayloadData(crsf_data* CRSF);
 void CRSF_CRC8LutInit(crsf_data* CRSF);
 uint8_t CRSF_CRC8Check(crsf_data* CRSF);
+void CRSF_ChannelMaping(crsf_data* CRSF);
 
-
-
-#endif
+#endif // CRSF_PROTOCOL_
