@@ -5,7 +5,7 @@
 // ---------------------------------------
 void IMU_InitializeIMU(imu* IMU)
 {
-    IMU->gyroX = 0;
+    IMU->GyroX = 0;
     IMU->GyroY = 0;
     IMU->RollRaw = 0;
     IMU->PitchRaw = 0;
@@ -34,12 +34,14 @@ void IMU_InitializeKalman(kalmanfilter* KalmanFilter)
 
 void IMU_GetInput(imu* IMU, const mpu6500* MPU6500)
 {
-    // Getting this value from this video https://www.youtube.com/watch?v=5HuN9iL-zxU
-    IMU->RollRaw = -atan2(MPU6500->fAccelX, sqrt(MPU6500->fAccelY * MPU6500->fAccelY + MPU6500->fAccelZ * MPU6500->fAccelZ)) / (3.142 / 180);
-    IMU->PitchRaw = atan2(MPU6500->fAccelY, sqrt(MPU6500->fAccelX * MPU6500->fAccelX + MPU6500->fAccelZ * MPU6500->fAccelZ)) / (3.142 / 180);
+
+    // double roll  = atan2(accY, accZ) * RAD_TO_DEG;
+    // double pitch = atan(-accX / sqrt(accY * accY + accZ * accZ)) * RAD_TO_DEG;
+    IMU->RollRaw = atan2(MPU6500->fAccelY, MPU6500->fAccelZ) / RAD_TO_DEG;
+    IMU->PitchRaw = atan(-(MPU6500->fAccelX) / sqrt(MPU6500->fAccelY * MPU6500->fAccelY + MPU6500->fAccelZ * MPU6500->fAccelZ)) / RAD_TO_DEG;
 
     // could not do this but i want to seperate MPU from Kalman filter and let IMU hold all the values  
-    IMU->gyroX = MPU6500->fGyroX;
+    IMU->GyroX = MPU6500->fGyroX;
     IMU->GyroY = MPU6500->fGyroY;    
 }
 
@@ -55,7 +57,7 @@ void IMU_GetKalmanOutput(imu* IMU, kalmanfilter* KalmanFilter, float dt) // dt n
     // Modified by Filip Michalak
     // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
     /* Step 1 */
-    KalmanFilter->RollRate = IMU->gyroX - KalmanFilter->RollBias;
+    KalmanFilter->RollRate = IMU->GyroX - KalmanFilter->RollBias;
     KalmanFilter->RollAngle += dt* KalmanFilter->RollRate;
     
     KalmanFilter->PitchRate = IMU->GyroY - KalmanFilter->PitchBias;

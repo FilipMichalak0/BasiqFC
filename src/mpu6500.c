@@ -26,9 +26,10 @@ void MPU6500_Init(mpu6500* MPU6500) // initialization of MPU6500 module
     
     MPU6500_writeSingleData(0x6B, 0x01, MPU6500); // waking up the MPU and setting internal oscilator to best available
     MPU6500_writeSingleData(0x6C, 0x00, MPU6500); // ensuring that all axis are working 
+    MPU6500_writeSingleData(0x19, 0x07, MPU6500); // set the sample rate to 1000Hz 8Khz / (7 + 1 ) = 1kHz
     MPU6500_writeSingleData(0x1A, 0x05, MPU6500); // DLPF 
     MPU6500_writeSingleData(0x1B, 0x08, MPU6500); // range +/-500 dps
-    MPU6500_writeSingleData(0x1C, 0x08, MPU6500); // range +/- 4g
+    MPU6500_writeSingleData(0x1C, 0x10, MPU6500); // range +/- 8g
     MPU6500_writeSingleData(0x1D, 0x05, MPU6500); // DLPF 
     MPU6500_writeSingleData(0x19, 0x09, MPU6500); // divider if DLPF
     printf("vlaue undewr register 0x1C = %d", MPU6500_ReadRegister(0x1C, MPU6500));
@@ -52,9 +53,9 @@ void MPU6500_ReadData(mpu6500* MPU6500) // reading all the needed data and stori
         MPU6500->gyroY = ((MPU6500->buff[10]<<8) | MPU6500->buff[11]);
         MPU6500->gyroZ = ((MPU6500->buff[12]<<8) | MPU6500->buff[13]);
         
-        MPU6500->fAccelX = MPU6500->accelX / 8192.0f;
-        MPU6500->fAccelY = MPU6500->accelY / 8192.0f;
-        MPU6500->fAccelZ = MPU6500->accelZ / 8192.0f;
+        MPU6500->fAccelX = MPU6500->accelX / 4096.0f;
+        MPU6500->fAccelY = MPU6500->accelY / 4096.0f;
+        MPU6500->fAccelZ = MPU6500->accelZ / 4096.0f;
 
         MPU6500->fGyroX = (MPU6500->gyroX / 65.5f);
         MPU6500->fGyroY = (MPU6500->gyroY / 65.5f);

@@ -9,17 +9,18 @@
 // ---------------------------------------
 // const Calibration data
 // ---------------------------------------
-#define Q_angle 0.005f
+#define Q_angle 0.001f // can do 0.005f or 0.001f to test 
 #define Q_bias 0.003f
-#define R_measure 0.02f
+#define R_measure 0.04f // could do 0.05f or 0.03f to test 
 
+#define RAD_TO_DEG (3.142 / 180)
 // ---------------------------------------
 // IMU struct
 // ---------------------------------------
 typedef struct 
 {
     // rate of quadcopter 
-    float gyroX, GyroY;
+    float GyroX, GyroY;
     // angles of quadcopter
     float RollRaw, PitchRaw, YawRaw; 
     // kalman output 
