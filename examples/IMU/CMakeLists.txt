@@ -1,7 +1,8 @@
 add_executable(BASIQ_imu_example
         imu_example.c
         ${CMAKE_SOURCE_DIR}/src/imu.c
-         ${CMAKE_SOURCE_DIR}/src/mpu6500.c
+        ${CMAKE_SOURCE_DIR}/src/mpu6500.c
+        ${CMAKE_SOURCE_DIR}/src/bme280.c
 )
 
 target_include_directories(BASIQ_imu_example PRIVATE

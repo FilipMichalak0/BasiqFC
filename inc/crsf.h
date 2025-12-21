@@ -1,8 +1,8 @@
 #ifndef CRSF_PROTOCOL_
 #define CRSF_PROTOCOL_
 
-#include<stdio.h>
-#include<pico/stdlib.h>
+#include <stdio.h>
+#include <pico/stdlib.h>
 
 // ---------------------------------------
 // Defines

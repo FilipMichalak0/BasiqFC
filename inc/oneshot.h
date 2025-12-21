@@ -1,9 +1,10 @@
 #ifndef ONESHOT_CONTROL_
 #define ONESHOT_CONTROL_
 
-#include<stdio.h>
-#include"pico/stdlib.h"
-#include"hardware/pwm.h"
+#include <stdio.h>
+#include "pico/stdlib.h"
+#include "hardware/pwm.h"
+#include "mma.h"
 
 // ---------------------------------------
 // Oneshot125 struct
@@ -20,7 +21,7 @@ typedef struct
     uint8_t slice_num_LB;
     uint8_t slice_num_RF; 
     uint8_t slice_num_RB;
-    // ONeshot values from 125us - 240us (Note that full range is 250 but we cut last 10 to let the ESC breathe)
+    // Oneshot values from 125us - 240us (Note that full range is 250 but we cut last 10 to let the ESC breathe)
     uint16_t fillLF;
     uint16_t fillLB;
     uint16_t fillRF;
@@ -33,5 +34,6 @@ typedef struct
 // ---------------------------------------
 void ONESHOT_initMotors(oneshot* Oneshot);
 void ONESHOT_writeMotors(oneshot* Oneshot);
+void ONESHOT_CalculateOutput(oneshot* Oneshot, mma* MMA);
 
 #endif // ONESHOT_CONTROL_

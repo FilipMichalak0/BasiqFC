@@ -24,7 +24,7 @@ void endLoop(loop_time* loopTime) // used at the end of the loop so that the loo
     while(time_us_32() - loopTime->currentTime < loopTime->loopSpeed);
 }
 
-void checkLoop(loop_time* loopTime)
+void checkLoop(loop_time* loopTime) // checks current time it took to reach this place in code
 {
     printf("Current loops time = %d\n", time_us_32() - loopTime->currentTime);
 }

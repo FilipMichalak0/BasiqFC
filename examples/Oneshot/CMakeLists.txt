@@ -2,6 +2,7 @@ add_executable(BASIQ_oneshot_example
     oneshot_example.c          
     ${CMAKE_SOURCE_DIR}/src/oneshot.c  
     ${CMAKE_SOURCE_DIR}/src/crsf.c
+    ${CMAKE_SOURCE_DIR}/src/mma.c
 )
 target_include_directories(BASIQ_oneshot_example PRIVATE
     ${CMAKE_SOURCE_DIR}/inc

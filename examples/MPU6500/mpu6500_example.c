@@ -1,14 +1,14 @@
-#include"mpu6500.h"
-#include"hardware/clocks.h"
+#include "mpu6500.h"
+#include "hardware/clocks.h"
 int main()
 {
     set_sys_clock_hz(220000000,true);
     stdio_init_all();
     
     mpu6500 MPU6500 = {
-        .I2cMPU6500Port = i2c0,
-        .MPU6500SclPin = 5, // i2c pin
-        .MPU6500SdaPin = 4, // i2c pin
+        .I2cMPU6500Port = i2c1,
+        .MPU6500SclPin = 3, // i2c pin
+        .MPU6500SdaPin = 2, // i2c pin
     };
     uint32_t start;
     uint32_t end;

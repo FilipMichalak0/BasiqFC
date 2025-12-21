@@ -1,10 +1,11 @@
-#include"loop_time.h"
+#include "loop_time.h"
 int main()
 {
     loop_time LoopTime =
     {
         .sysSpeed = 220000000,
-        .loopSpeed = 4000
+        .loopSpeed = 4000,
+        .dt = 0.004f
     };
     setSystemClockSpeed(&LoopTime);
     stdio_init_all();

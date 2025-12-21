@@ -1,4 +1,4 @@
-#include"oneshot.h"
+#include "oneshot.h"
 
 void ONESHOT_initMotors(oneshot* Oneshot) // initialization of all PWM channels needed for all the motors
 {
@@ -44,4 +44,14 @@ void ONESHOT_writeMotors(oneshot* Oneshot)
     pwm_set_chan_level(Oneshot->slice_num_LB, PWM_CHAN_B, Oneshot->fillLB);
     pwm_set_chan_level(Oneshot->slice_num_RF, PWM_CHAN_A, Oneshot->fillRF);
     pwm_set_chan_level(Oneshot->slice_num_RB, PWM_CHAN_B, Oneshot->fillRB);
+}
+
+void ONESHOT_CalculateOutput(oneshot* Oneshot, mma* MMA)
+{
+    Oneshot->fillLF = (MMA->motorLF * 125) / 1000;
+    Oneshot->fillLB = (MMA->motorLB * 125) / 1000;
+    Oneshot->fillRF = (MMA->motorRF * 125) / 1000;
+    Oneshot->fillRB = (MMA->motorRB * 125) / 1000;
+
+    
 }

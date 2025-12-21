@@ -1,9 +1,9 @@
 #ifndef BME280_DRIVER_
 #define BME280_DRIVER_
 
-#include<stdio.h>
-#include"pico/stdlib.h"
-#include"hardware/i2c.h"
+#include <stdio.h>
+#include "pico/stdlib.h"
+#include "hardware/i2c.h"
 
 // ---------------------------------------
 // I2C setup

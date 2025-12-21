@@ -1,6 +1,6 @@
-#include"crsf.h"
-#include<stdio.h>
-#include"hardware/clocks.h"
+#include "crsf.h"
+#include <stdio.h>
+#include "hardware/clocks.h"
 
 int main(void)
 {
@@ -20,7 +20,8 @@ int main(void)
         printf("ch1 = %d ", CRSF.PWMData[0]);
         printf("ch2 = %d ", CRSF.PWMData[1]);
         printf("ch3 = %d ", CRSF.PWMData[2]);
-        printf("ch4 = %d  \n", CRSF.PWMData[3]);
+        printf("ch4 = %d ", CRSF.PWMData[3]);
+        printf("ch5 = %d  \n", CRSF.PWMData[4]);
         
         sleep_ms(5);
     }

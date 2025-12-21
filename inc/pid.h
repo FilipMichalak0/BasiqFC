@@ -1,0 +1,37 @@
+#ifndef PID_
+#define PID_
+
+#include <stdio.h>
+#include "pico/stdlib.h"
+
+// ---------------------------------------
+// PID struct
+// ---------------------------------------
+typedef struct 
+{
+    float currError; // current error
+    float prevError; // previous error
+
+    float Kp; 
+    float Ki; 
+    float Kd; 
+
+    float p; // P output 
+    float i; // I output and also a memory for I term 
+    float d; // D output 
+
+    float antyWindupMax; // max i value
+    float antyWindupMin; // min i value 
+    float dt; // sampling time 
+
+    float output;
+}pid;
+
+// ---------------------------------------
+// Public API
+// ---------------------------------------
+void PID_init(pid* PID);
+void PID_calculate(pid* PID, float InputValue, float ImuMeasurement);
+void PID_reset(pid* PID);
+
+#endif // PID_
