@@ -13,13 +13,14 @@ int main()
     uint32_t start;
     uint32_t end;
     uint32_t time;
+    sleep_ms(1000);
     MPU6500_Init(&MPU6500);
     while(1)
     {
         printf("vlaue undewr register 0x1C = %d\n", MPU6500_ReadRegister(0x1C, &MPU6500));
         MPU6500_ReadData(&MPU6500);
         MPU6500_CalibrateData(&MPU6500);
-        printf("X value %6.3f, Y value  %6.3f, Z value  %6.3f, X gyro value %7.3f, Y gyro value  %7.3f, Z gyro value  %7.3f, The temperature is %5.2f\n",
+        printf("X value %6.3f, Y value  %6.3f, Z value  %6.3f, X gyro value %7.2f, Y gyro value  %7.2f, Z gyro value  %7.2f, The temperature is %5.2f\n",
              MPU6500.fAccelX, MPU6500.fAccelY, MPU6500.fAccelZ, MPU6500.fGyroX, MPU6500.fGyroY, MPU6500.fGyroZ, MPU6500.tempOut);
         sleep_ms(100);
     }

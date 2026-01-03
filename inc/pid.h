@@ -24,6 +24,8 @@ typedef struct
     float antyWindupMin; // min i value 
     float dt; // sampling time 
 
+    float limit; //limit output
+
     float output;
 }pid;
 

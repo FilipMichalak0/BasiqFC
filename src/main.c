@@ -8,6 +8,16 @@
 #include "mpu6500.h"
 #include "oneshot.h"
 #include "pid.h"
+// mix multiplier for correcting values from (deg) to (us) 
+#define MIX_mulitplier 1 
+
+enum logs
+{
+    logsOff,
+    logsOn
+};
+
+enum logs LOG = logsOff; 
 
 enum state  
 {
@@ -67,33 +77,56 @@ int main()
     // input controll struct
     input_control INPUT_CONTROL = {0, 0, 0, 0};
 
-    // PID structs for Roll, Pitch, Yaw 
-    pid PIDRoll = 
+    // PID structs for RateRoll, RatePitch, AngleRoll, AnglePitch, Yaw 
+    pid PIDRateRoll = 
     {
-        .Kp = 1,
-        .Ki = 0.001,
-        .Kd = 0.1,
+        .Kp = 0.3,
+        .Ki = 0.05,
+        .Kd = 0.01,
         .antyWindupMax = 300,
         .antyWindupMin = -300,
-        .dt = 0.004f
+        .dt = 0.004f,
+        .limit = 500
     };
-    pid PIDPitch = 
+    pid PIDRatePitch = 
+    {
+        .Kp = 0.3,
+        .Ki = 0.05,
+        .Kd = 0.01,
+        .antyWindupMax = 300,
+        .antyWindupMin = -300,
+        .dt = 0.004f,
+        .limit = 500
+    };
+    pid PIDAngleRoll = 
     {
         .Kp = 2,
-        .Ki = 0.001,
-        .Kd = 0.1,
+        .Ki = 0,
+        .Kd = 0,
         .antyWindupMax = 300,
         .antyWindupMin = -300,
-        .dt = 0.004f
+        .dt = 0.004f,
+        .limit = 200
+    };
+    pid PIDAnglePitch = 
+    {
+        .Kp = 2,
+        .Ki = 0,
+        .Kd = 0,
+        .antyWindupMax = 300,
+        .antyWindupMin = -300,
+        .dt = 0.004f,
+        .limit = 200
     };
     pid PIDYaw = 
     {
-        .Kp = 2,
-        .Ki = 1,
-        .Kd = 0.001,
+        .Kp = 0.1,
+        .Ki = 0,
+        .Kd = 0,
         .antyWindupMax = 300,
         .antyWindupMin = -300,
-        .dt = 0.004f
+        .dt = 0.004f,
+        .limit = 200
     };
 
     // mma struct 
@@ -116,8 +149,10 @@ int main()
     IMU_AngleInitializeKalman(&PitchKalmanFilter);
     
     // initialization of pid
-    PID_init(&PIDRoll);
-    PID_init(&PIDPitch);
+    PID_init(&PIDRateRoll);
+    PID_init(&PIDRatePitch);
+    PID_init(&PIDAngleRoll);
+    PID_init(&PIDAnglePitch);
     PID_init(&PIDYaw); 
 
     // Calibration of all modules 
@@ -168,35 +203,53 @@ int main()
         if(State == NotArmed)
         {
             // Reset all earlier values for again takeoff
-            PID_reset(&PIDRoll);
-            PID_reset(&PIDPitch);
+            PID_reset(&PIDAngleRoll);
+            PID_reset(&PIDAnglePitch);
             PID_reset(&PIDYaw);
             ONESHOT.fillLB = 125;
             ONESHOT.fillLF = 125;
             ONESHOT.fillRB = 125;
             ONESHOT.fillRF = 125;
-            ONESHOT_writeMotors(&ONESHOT);
+            if(LOG == logsOff){
+                ONESHOT_writeMotors(&ONESHOT);
+            }
+            
 
-            //printf("State not Armed!");
+            printf("State not Armed!");
             continue;
         }
-        //printf("State Armed!");
         // PID calculations 
-        PID_calculate(&PIDRoll, INPUT_CONTROL.roll, IMU.RollKal);
-        PID_calculate(&PIDPitch, INPUT_CONTROL.pitch, IMU.PitchKal);
+        if(INPUT_CONTROL.throttle < 1150)
+        {
+            PIDAngleRoll.i = 0;
+            PIDAnglePitch.i = 0;
+            PIDYaw.i = 0;
+        }
+        PID_calculate(&PIDRateRoll, INPUT_CONTROL.roll, MPU6500.fGyroX);
+        PID_calculate(&PIDRatePitch, INPUT_CONTROL.pitch, MPU6500.fGyroY);
+
+        // PID_calculate(&PIDAngleRoll, INPUT_CONTROL.roll, -IMU.RollKal); // Needs tests
+        // PID_calculate(&PIDAnglePitch, INPUT_CONTROL.pitch, -IMU.PitchKal);
         PID_calculate(&PIDYaw, INPUT_CONTROL.yaw, IMU.YawRaw);
+
 
         // limit throttle for other calculations to balance quadcopter
         INPUT_CONTROL_LimitThrottle(&INPUT_CONTROL);
         // caluclations for mototrs
-        MMA_calculateOutput(&MMA, PIDRoll.output, PIDPitch.output, INPUT_CONTROL.throttle, PIDYaw.output);
-        printf("PID Roll = %f, PID Pitch = %f, Input Throttle = %f, PID Yaw = %f\n", PIDRoll.output, PIDPitch.output, INPUT_CONTROL.throttle, PIDYaw.output);
+        // printf("PID Roll = %f, PID Pitch = %f, Throttle = %f, PID Yaw = %f ", PIDRoll.output, PIDPitch.output, INPUT_CONTROL.throttle, PIDYaw.output);
+        MMA_calculateOutput(&MMA, PIDRateRoll.output * MIX_mulitplier, PIDRatePitch.output * MIX_mulitplier, INPUT_CONTROL.throttle, PIDYaw.output * MIX_mulitplier);
+        //MMA_calculateOutput(&MMA, 0, 0, INPUT_CONTROL.throttle, 0);
         MMA_LimitOutput(&MMA);
-        ONESHOT_CalculateOutput(&ONESHOT, &MMA);
-        ONESHOT_writeMotors(&ONESHOT); 
-        // 
+        //printf("MMA LB = %f, MMA LF = %f, MMA RB = %f, MMA RF = %f ", MMA.motorLB, MMA.motorLF, MMA.motorRB, MMA.motorRF);
+        ONESHOT_CalculateOutput(&ONESHOT, &MMA); 
+        //printf("MAIN ONESHOT\n");
+        //printf("ONESHOT LB = %d, ONESHOT LF = %d, ONESHOT RB = %d, ONESHOT RF = %d\n", ONESHOT.fillLB, ONESHOT.fillLF, ONESHOT.fillRB, ONESHOT.fillRF);
+        //printf("Inputcontrol.pitch = %f, imu.pitchkal = %f, PIDPitch.currError = %f, PIDPItch.output = %f, MMA LB = %f, MMA LF = %f, MMA RB = %f, MMA RF = %f \n",INPUT_CONTROL.pitch, IMU.PitchKal, PIDRatePitch.currError, PIDRatePitch.output, MMA.motorLB, MMA.motorLF, MMA.motorRB, MMA.motorRF);
+        if(LOG == logsOff){
+            ONESHOT_writeMotors(&ONESHOT);
+        }
+        //checkLoop(&LOOP_TIME); 
         // end of loop to match 250Hz
-
         endLoop(&LOOP_TIME);
     }
     // get input from mpu6500 

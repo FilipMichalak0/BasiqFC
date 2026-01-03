@@ -29,8 +29,8 @@ void ONESHOT_initMotors(oneshot* Oneshot) // initialization of all PWM channels 
 
     pwm_set_chan_level(Oneshot->slice_num_LF, PWM_CHAN_A, 125);
     pwm_set_chan_level(Oneshot->slice_num_LB, PWM_CHAN_B, 125);
-    pwm_set_chan_level(Oneshot->slice_num_RF, PWM_CHAN_A, 125);
-    pwm_set_chan_level(Oneshot->slice_num_RB, PWM_CHAN_B, 125);
+    pwm_set_chan_level(Oneshot->slice_num_RF, PWM_CHAN_B, 125);
+    pwm_set_chan_level(Oneshot->slice_num_RB, PWM_CHAN_A, 125);
 
     pwm_set_enabled(Oneshot->slice_num_LF, true);
     pwm_set_enabled(Oneshot->slice_num_LB, true);
@@ -42,8 +42,8 @@ void ONESHOT_writeMotors(oneshot* Oneshot)
 {
     pwm_set_chan_level(Oneshot->slice_num_LF, PWM_CHAN_A, Oneshot->fillLF);
     pwm_set_chan_level(Oneshot->slice_num_LB, PWM_CHAN_B, Oneshot->fillLB);
-    pwm_set_chan_level(Oneshot->slice_num_RF, PWM_CHAN_A, Oneshot->fillRF);
-    pwm_set_chan_level(Oneshot->slice_num_RB, PWM_CHAN_B, Oneshot->fillRB);
+    pwm_set_chan_level(Oneshot->slice_num_RF, PWM_CHAN_B, Oneshot->fillRF);
+    pwm_set_chan_level(Oneshot->slice_num_RB, PWM_CHAN_A, Oneshot->fillRB);
 }
 
 void ONESHOT_CalculateOutput(oneshot* Oneshot, mma* MMA)
@@ -52,6 +52,4 @@ void ONESHOT_CalculateOutput(oneshot* Oneshot, mma* MMA)
     Oneshot->fillLB = (MMA->motorLB * 125) / 1000;
     Oneshot->fillRF = (MMA->motorRF * 125) / 1000;
     Oneshot->fillRB = (MMA->motorRB * 125) / 1000;
-
-    
 }

@@ -23,13 +23,15 @@ void PID_calculate(pid* PID, float InputValue, float ImuMeasurement)
 
     PID->output = PID->p + PID->i + PID->d;
 
+    if(PID->output > PID->limit) PID->output = PID->limit;
+    if(PID->output < -(PID->limit)) PID->output = -(PID->limit);
     PID->prevError = PID->currError;
 }
 
 void PID_reset(pid* PID)
 {
     PID->currError = 0; 
-    PID->prevError;
+    PID->prevError = 0;
  
 
     PID->p = 0;  
