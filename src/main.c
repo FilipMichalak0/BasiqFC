@@ -11,9 +11,6 @@
 // mix multiplier for correcting values from (deg) to (us) 
 #define MIX_mulitplier 1 
 
-
-float gyroX_f = 0;
-float gyroY_f = 0;
 enum logs
 {
     LogsOff,
@@ -35,7 +32,7 @@ enum state
 int main()
 {
     // settup enums for debugging
-    enum logs LOG = LogsOff; 
+    enum logs LOG = LogsOn; 
     enum mode MODE = AngleMode;
 
     // loopTime struct
@@ -110,7 +107,7 @@ int main()
     };
     pid PIDAngleRoll = 
     {
-        .Kp = 2,
+        .Kp = 1,
         .Ki = 0,
         .Kd = 0,
         .antyWindupMax = 100,
@@ -120,7 +117,7 @@ int main()
     };
     pid PIDAnglePitch = 
     {
-        .Kp = 2,
+        .Kp = 1,
         .Ki = 0,
         .Kd = 0,
         .antyWindupMax = 100,
@@ -131,7 +128,7 @@ int main()
     pid PIDYaw = 
     {
         .Kp = 0.1,
-        .Ki = 0.001,
+        .Ki = 0.01,
         .Kd = 0.001,
         .antyWindupMax = 100,
         .antyWindupMin = -100,
@@ -193,10 +190,6 @@ int main()
         IMU.RollKal =  IMU_AngleGetKalmanOutput(IMU.GyroX, IMU.RollRaw,  &RollKalmanFilter, LOOP_TIME.dt);
         IMU.PitchKal =  IMU_AngleGetKalmanOutput(IMU.GyroY, IMU.PitchRaw,  &PitchKalmanFilter, LOOP_TIME.dt);
 
-        // filtr na gyro do dodania pewnie do modułu mpu6500
-        gyroX_f = 0.7f * gyroX_f + 0.3f * MPU6500.fGyroX;
-        gyroY_f = 0.7f * gyroY_f + 0.3f * MPU6500.fGyroY;
-
         // printf("IMU ROLL = %.4f, IMU PITCH = %.4f\n", IMU.RollKal, IMU.PitchKal);
         // read transmiter data
         CRSF_StateMachine(&CRSF);
@@ -243,11 +236,10 @@ int main()
             PIDRatePitch.i = 0;
             PIDYaw.i = 0;
         }
-
         if(MODE == RateMode)
         {
-            PID_calculate(&PIDRateRoll, INPUT_CONTROL.roll, gyroX_f);
-            PID_calculate(&PIDRatePitch, INPUT_CONTROL.pitch, gyroY_f);
+            PID_calculate(&PIDRateRoll, INPUT_CONTROL.roll, MPU6500.fGyroX);
+            PID_calculate(&PIDRatePitch, INPUT_CONTROL.pitch, MPU6500.fGyroY);
             PID_calculate(&PIDYaw, INPUT_CONTROL.yaw, IMU.YawRaw);
         }
         if(MODE == AngleMode) // Needs tests
@@ -255,8 +247,8 @@ int main()
             PID_calculate(&PIDAngleRoll, INPUT_CONTROL.roll, IMU.RollKal); 
             PID_calculate(&PIDAnglePitch, INPUT_CONTROL.pitch, IMU.PitchKal);
 
-            PID_calculate(&PIDRateRoll, PIDAngleRoll.output, gyroX_f);
-            PID_calculate(&PIDRatePitch, PIDAnglePitch.output, gyroY_f);
+            PID_calculate(&PIDRateRoll, PIDAngleRoll.output, MPU6500.fGyroX);
+            PID_calculate(&PIDRatePitch, PIDAnglePitch.output, MPU6500.fGyroY);
             PID_calculate(&PIDYaw, INPUT_CONTROL.yaw, IMU.YawRaw);
         }
 
@@ -272,7 +264,7 @@ int main()
         ONESHOT_CalculateOutput(&ONESHOT, &MMA); 
         //printf("MAIN ONESHOT\n");
         //printf("ONESHOT LB = %d; ONESHOT LF = %d; ONESHOT RB = %d; ONESHOT RF = %d\n", ONESHOT.fillLB, ONESHOT.fillLF, ONESHOT.fillRB, ONESHOT.fillRF);
-        //printf("imu.rollkal = %f, PIDRoll.output = %f, imu.pitchkal = %f, PIDPitch.currError = %f, PIDPItch.output = %f, MMA LB = %f, MMA LF = %f, MMA RB = %f, MMA RF = %f \n",IMU.RollKal, PIDRateRoll.output, IMU.PitchKal, PIDRatePitch.currError, PIDRatePitch.output, MMA.motorLB, MMA.motorLF, MMA.motorRB, MMA.motorRF);
+        //printf("imu.rollkal = %f, PIDRoll.output = %f, imu.pitchkal = %f, PIDPitch.currError = %f, PIDPItch.output = %f, MMA LB = %f, MMA LF = %f, MMA RB = %f, MMA RF = %f \n",IMU.RollKal,PIDRateRoll.output, IMU.PitchKal, PIDRatePitch.currError, PIDRatePitch.output, MMA.motorLB, MMA.motorLF, MMA.motorRB, MMA.motorRF);
         if(LOG == LogsOff){
             ONESHOT_writeMotors(&ONESHOT);
         }
