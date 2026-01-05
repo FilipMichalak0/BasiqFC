@@ -268,7 +268,7 @@ int main()
         if(LOG == LogsOff){
             ONESHOT_writeMotors(&ONESHOT);
         }
-        //checkLoop(&LOOP_TIME); 
+        // checkLoop(&LOOP_TIME); 
         // end of loop to match 250Hz
         endLoop(&LOOP_TIME);
     }
